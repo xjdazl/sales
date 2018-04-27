@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.iuv.dao.mapper.ActivatePhoneMessageMapper">
+    <sql id="columns">
+        sign_imei as signImei,
+        sign_version as signVersion,
+        sign_ip as signIp,
+        sign_basestation as signBasestation,
+        sign_mode as signMode,
+        sign_first_time as signFirstTime,
+        sign_second_time as signSecondTime,
+        sign_third_time as signThirdTime,
+        has_submit as hasSubmit,
+        province as province,
+        city as city,
+        receive_body as receiveBody,
+        create_time as createTime,
+        update_time as updateTime,
+        is_crm as isCrm,
+        phone_model as phoneModel
+    </sql>
+    <insert id="insert" parameterType="com.gome.iuv.dao.entity.ActivatePhoneMessageEntity">
+        insert into sales_activate_phone_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="signImei != null and signImei != '' ">sign_imei,</if>
+            <if test="isCrm != null">is_crm,</if>
+            <if test="signVersion != null and signVersion != '' ">sign_version,</if>
+            <if test="signIp != null and signIp != '' ">sign_ip,</if>
+            <if test="signBasestation != null and signBasestation != '' ">sign_basestation,</if>
+            <if test="signMode != null">sign_mode,</if>
+            <if test="signFirstTime != null and signFirstTime != '' ">sign_first_time,</if>
+            <if test="signSecondTime != null and signSecondTime != '' ">sign_second_time,</if>
+            <if test="signThirdTime != null and signThirdTime != '' ">sign_third_time,</if>
+            <if test="city != null and city != '' ">city,</if>
+            <if test="province != null and province != '' ">province,</if>
+            <if test="hasSubmit != null">has_submit,</if>
+            <if test="receiveBody != null and receiveBody != '' ">receive_body,</if>
+            <if test="createTime != null and createTime != '' ">create_time,</if>
+            <if test="updateTime != null and updateTime != '' ">update_time,</if>
+            <if test="phoneModel != null and phoneModel != '' ">phone_model,</if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="signImei != null and signImei != '' ">#{signImei},</if>
+            <if test="isCrm != null">#{isCrm},</if>
+            <if test="signVersion != null and signVersion != '' ">#{signVersion},</if>
+            <if test="signIp != null and signIp != '' ">#{signIp},</if>
+            <if test="signBasestation != null and signBasestation != '' ">#{signBasestation},</if>
+            <if test="signMode != null">#{signMode},</if>
+            <if test="signFirstTime != null and signFirstTime != '' ">#{signFirstTime},</if>
+            <if test="signSecondTime != null and signSecondTime != '' ">#{signSecondTime},</if>
+            <if test="signThirdTime != null and signThirdTime != '' ">#{signThirdTime},</if>
+            <if test="city != null and city != '' ">#{city},</if>
+            <if test="province != null and province != '' ">#{province},</if>
+            <if test="hasSubmit != null">#{hasSubmit},</if>
+            <if test="receiveBody != null and receiveBody != '' ">#{receiveBody},</if>
+            <if test="createTime != null and createTime != '' ">#{createTime},</if>
+            <if test="updateTime != null and updateTime != '' ">#{updateTime},</if>
+            <if test="phoneModel != null and phoneModel != '' ">#{phoneModel},</if>
+        </trim>
+    </insert>
+    <update id="update" parameterType="com.gome.iuv.dao.entity.ActivatePhoneMessageEntity">
+        update  sales_activate_phone_message
+        <trim prefix="set" suffixOverrides=",">
+            <if test="signVersion != null and signVersion != '' ">sign_version=#{signVersion},</if>
+            <if test="signIp != null and signIp != '' ">sign_ip=#{signIp},</if>
+            <if test="isCrm != null">is_crm=#{isCrm},</if>
+            <if test="signBasestation != null and signBasestation != '' ">sign_basestation=#{signBasestation},</if>
+            <if test="signMode != null and signMode != '' ">sign_mode=#{signMode},</if>
+            <if test="signFirstTime != null and signFirstTime != '' ">sign_first_time=#{signFirstTime},</if>
+            <if test="signSecondTime != null and signSecondTime != '' ">sign_second_time=#{signSecondTime},</if>
+            <if test="signThirdTime != null and signThirdTime != '' ">sign_third_time=#{signThirdTime},</if>
+            <if test="hasSubmit != null and hasSubmit != '' ">has_submit=#{hasSubmit},</if>
+            <if test="createTime != null and createTime != '' ">create_time=#{createTime},</if>
+            <if test="updateTime != null and updateTime != '' ">update_time=#{updateTime},</if>
+        </trim>
+        where  sign_imei = #{signImei}
+    </update>
+
+    <update id="batchUpdateHasSubmit" parameterType="java.util.Map">
+        update sales_activate_phone_message   set
+        has_submit=#{hasSubmit},update_time=#{updateTime}
+        where sign_imei in
+        <foreach collection="signImeis" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="findByImei" parameterType="java.lang.String" resultType="com.gome.iuv.dao.entity.ActivatePhoneMessageEntity">
+        SELECT  <include refid="columns"/>  from sales_activate_phone_message where  sign_imei = #{signImei} and has_submit = '0'
+    </select>
+    <select id="findYesterdayAllActivatePhones" parameterType="java.util.Map" resultType="com.gome.iuv.dao.entity.ActivatePhoneMessageEntity">
+        SELECT
+        *
+        FROM
+        sales_activate_phone_message
+        WHERE
+        sign_first_time IS NOT NULL
+        AND is_crm = 1
+        AND has_submit = #{hasSubmit}
+        AND sign_first_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+    <select id="findMonthSales" parameterType="java.util.Map" resultType="java.util.Map">
+        select m.id as month,count(1) as count,apm.sign_imei as imei
+        from sales_month m left JOIN sales_activate_phone_message apm on
+        date_format(apm.sign_first_time,'%m') = m.id and apm.has_submit = '1'
+        <if test=" year != null and year != '' ">
+            and date_format(apm.sign_first_time,'%Y') =#{year}
+        </if>
+        <if test=" province != null and province != '' ">
+            and apm.province =#{province}
+        </if>
+        <if test=" city != null and city != '' ">
+            and apm.city =#{city}
+        </if>
+        GROUP BY m.id  ORDER BY m.id
+    </select>
+    <select id="findDaySales" parameterType="java.util.Map" resultType="java.util.Map">
+        select d.id as day,count(1) as count,apm.sign_imei as imei
+        from sales_day d
+        left JOIN sales_activate_phone_message apm on
+        date_format(apm.sign_first_time,'%d') = d.id and apm.has_submit = '1'
+        <if test=" month != null and month != '' ">
+            and date_format(apm.sign_first_time,'%Y-%m') =#{month}
+        </if>
+        <if test=" province != null and province != '' ">
+            and apm.province =#{province}
+        </if>
+        <if test=" city != null and city != '' ">
+            and apm.city =#{city}
+        </if>
+        GROUP BY d.id  ORDER BY d.id asc
+    </select>
+</mapper>

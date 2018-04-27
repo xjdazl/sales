@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.iuv.dao.mapper.SerialImeiMessageMapper">
+    <sql id="columns">
+        sign_imei as signImei,
+        create_time as createTime,
+        update_time as updateTime
+    </sql>
+    <insert id="insert" parameterType="com.gome.iuv.dao.entity.SerialImeiMessageEntity">
+      insert into sales_serial_imei_message
+      (
+           sign_imei,
+           create_time,
+           update_time
+        )
+      VALUES
+      (
+           #{signImei},
+           #{createTime},
+           ${updateTime}
+      )
+    </insert>
+    <insert id="insertByBatch" parameterType="java.util.List">
+        insert into sales_serial_imei_message (sign_imei,create_time,update_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.signImei},#{item.createTime},#{item.updateTime})
+        </foreach>
+    </insert>
+    <select id="findByImei" parameterType="java.lang.String" resultType="com.gome.iuv.dao.entity.SerialImeiMessageEntity">
+           select <include refid="columns"/> from sales_serial_imei_message where sign_imei = #{signImei}
+    </select>
+    <select id="findListByImei" parameterType="java.util.Map"  resultType="java.lang.String">
+        select sign_imei from sales_serial_imei_message where sign_imei in
+        <foreach collection="signImeis" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>
